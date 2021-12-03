@@ -453,7 +453,16 @@ def calculate_points_miles(title):
                 "marker": "airplane",
                 "position": (first_segment.origin.longitude, first_segment.origin.latitude),
                 "size": 48,
-            }
+            },
+            *[
+                {
+                    "tooltip": f'<div><strong>{segment.destination.city}</strong> {segment.destination.airport_code}</div><div style="font-size: .833rem">{segment.destination.airport}<br />{calc.distance} miles</div>',
+                    "marker": f"{segment.destination.market.lower() if segment.destination.market else 'int'}-airport",
+                    "position": (segment.destination.longitude, segment.destination.latitude),
+                    "size": 56,
+                }
+                for segment, calc in zip(segments, calculations)
+            ]
         ]
 
         _render_map(arclayer_and_textlayer_data, arclayer_and_textlayer_data, iconlayer_data, height=340)
@@ -708,7 +717,16 @@ def browse_airports(title):
             "marker": "airplane",
             "position": (origin.longitude, origin.latitude),
             "size": 48,
-        }
+        },
+        *[
+            {
+                "tooltip": f'<div><strong>{destination.city}</strong> {destination.airport_code}</div><div style="font-size: .833rem">{destination.airport}<br />{data[-1] or data[-2]} miles</div>',
+                "marker": f"{destination.market.lower() if destination.market else 'int'}-airport",
+                "position": (destination.longitude, destination.latitude),
+                "size": 56,
+            }
+            for destination, data in zip(destination_airports, distances_data)
+        ],
     ]
 
     _render_map(arclayer_data, textlayer_data, iconlayer_data, ctr_lon=origin.longitude, ctr_lat=origin.latitude, zoom=4, get_width=2, height=540)
@@ -751,6 +769,29 @@ def _render_map(arclayer_data=None, textlayer_data=None, iconlayer_data=None, ct
             auto_highlight=True,
         ))
 
+    if iconlayer_data:
+        # https://deck.gl/docs/api-reference/layers/icon-layer
+        layers.append(pdk.Layer(
+            "IconLayer",
+            iconlayer_data,
+            pickable=True,
+            icon_atlas="https://raw.githubusercontent.com/kinghuang/ac-calc/map-icons/icons/map-icons.png",
+            icon_mapping={
+                "airplane": {"x": 0, "y": 0, "width": 128, "height": 128},
+                "small-airplane": {"x": 128, "y": 0, "width": 128, "height": 128},
+                "airplane-taking-off": {"x": 256, "y": 0, "width": 128, "height": 128},
+                "airplane-landing": {"x": 384, "y": 0, "width": 128, "height": 128},
+
+                "dom-airport": {"x": 0, "y": 256, "width": 128, "height": 128},
+                "tnb-airport": {"x": 128, "y": 256, "width": 128, "height": 128},
+                "sun-airport": {"x": 256, "y": 256, "width": 128, "height": 128},
+                "int-airport": {"x": 384, "y": 256, "width": 128, "height": 128},
+            },
+            get_icon="marker",
+            get_position="position",
+            get_size="size",
+        ))
+
     if textlayer_data:
         # https://deck.gl/docs/api-reference/layers/text-layer
         layers.append(pdk.Layer(
@@ -763,24 +804,6 @@ def _render_map(arclayer_data=None, textlayer_data=None, iconlayer_data=None, ct
             get_size=18,
             get_text_anchor=String("middle"),
             get_alignment_baseline=String("center"),
-        ))
-
-    if iconlayer_data:
-        # https://deck.gl/docs/api-reference/layers/icon-layer
-        layers.append(pdk.Layer(
-            "IconLayer",
-            iconlayer_data,
-            pickable=True,
-            icon_atlas="https://raw.githubusercontent.com/kinghuang/ac-calc/map-icons/icons/airplanes.png",
-            icon_mapping={
-                "airplane": {"x": 0, "y": 0, "width": 128, "height": 128},
-                "small-airplane": {"x": 128, "y": 0, "width": 128, "height": 128},
-                "airplane-taking-off": {"x": 0, "y": 128, "width": 128, "height": 128},
-                "airplane-landing": {"x": 128, "y": 128, "width": 128, "height": 128},
-            },
-            get_icon="marker",
-            get_position="position",
-            get_size="size",
         ))
 
     deck = pdk.Deck(
