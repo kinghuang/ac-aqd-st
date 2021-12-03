@@ -435,7 +435,7 @@ def calculate_points_miles(title):
     with map_col:
         arclayer_and_textlayer_data = [
             {
-                "tooltip": f"<strong>{segment.origin.airport_code}–{segment.destination.airport_code}</strong><br />{calc.distance} miles",
+                "tooltip": f'<div><strong>{segment.destination.city}</strong> {segment.destination.airport_code}</div><div style="font-size: .833rem">{segment.destination.airport}<br />{calc.distance} miles</div>',
                 "source_position": (segment.origin.longitude, segment.origin.latitude),
                 "target_position": (segment.destination.longitude, segment.destination.latitude),
                 "source_colour": ImageColor.getrgb(segment.colour),
@@ -449,7 +449,7 @@ def calculate_points_miles(title):
         first_segment = segments[0]
         iconlayer_data = [
             {
-                "tooltip": f"<strong>{first_segment.origin.city}</strong> {first_segment.origin.airport_code}<br />{first_segment.origin.airport}",
+                "tooltip": f'<div><strong>{first_segment.origin.city}</strong> {first_segment.origin.airport_code}</div><div style="font-size: .833rem">{first_segment.origin.airport}</div>',
                 "marker": "airplane",
                 "position": (first_segment.origin.longitude, first_segment.origin.latitude),
                 "size": 48,
@@ -683,7 +683,7 @@ def browse_airports(title):
 
     arclayer_data = [
         {
-            "tooltip": f"<strong>{destination.airport_code}</strong><br />{data[-1] or data[-2]} miles",
+            "tooltip": f'<div><strong>{destination.city}</strong> {destination.airport_code}</div><div style="font-size: .833rem">{destination.airport}<br />{data[-1] or data[-2]} miles</div>',
             "source_position": (origin.longitude, origin.latitude),
             "target_position": (destination.longitude, destination.latitude),
             "source_colour": MARKET_COLOURS.get(destination.market, (180, 180, 180)),
@@ -694,7 +694,7 @@ def browse_airports(title):
 
     textlayer_data = [
         {
-            "tooltip": f"<strong>{destination.airport_code}</strong><br />{data[-1] or data[-2]} miles",
+            "tooltip": f'<div><strong>{destination.city}</strong> {destination.airport_code}</div><div style="font-size: .833rem">{destination.airport}<br />{data[-1] or data[-2]} miles</div>',
             "distance": data[-1] or data[-2],
             "text": destination.airport_code,
             "position": (destination.longitude, destination.latitude),
@@ -704,7 +704,7 @@ def browse_airports(title):
 
     iconlayer_data = [
         {
-            "tooltip": f"<strong>{origin.city}</strong> {origin.airport_code}<br />{origin.airport}",
+            "tooltip": f'<div><strong>{origin.city}</strong> {origin.airport_code}</div><div style="font-size: .833rem">{origin.airport}</div>',
             "marker": "airplane",
             "position": (origin.longitude, origin.latitude),
             "size": 48,
@@ -771,7 +771,7 @@ def _render_map(arclayer_data=None, textlayer_data=None, iconlayer_data=None, ct
             "IconLayer",
             iconlayer_data,
             pickable=True,
-            icon_atlas="https://raw.githubusercontent.com/kinghuang/ac-calc/master/icons/airplanes.png",
+            icon_atlas="https://raw.githubusercontent.com/kinghuang/ac-calc/map-icons/icons/airplanes.png",
             icon_mapping={
                 "airplane": {"x": 0, "y": 0, "width": 128, "height": 128},
                 "small-airplane": {"x": 128, "y": 0, "width": 128, "height": 128},
